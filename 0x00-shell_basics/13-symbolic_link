@@ -1,1 +1,2 @@
 #!/bin/bash
+in -s /bin/is __is__
