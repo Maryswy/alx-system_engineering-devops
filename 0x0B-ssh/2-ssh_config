@@ -1,4 +1,4 @@
-Host *
-       IdentityFile ~/.ssh/school
-       PasswordAuthentication no
-       BatchMode yes
+#ssh config
+ForwardAgent yes
+IdentityFile ~/.ssh/school
+PasswordAuthentication no
