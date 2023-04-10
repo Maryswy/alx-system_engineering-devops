@@ -5,5 +5,5 @@ sudo apt-get -y install nginx
 sudo ufw 80
 sudo ufw status
 systemctl status nginx
-echo "Hello World!" | sudo tee /var/www/html/index.html >/dev/null
+echo "Hello World!" | sudo tee /var/www/html/index.html 
 sudo service nginx start
