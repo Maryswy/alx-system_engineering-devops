@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# This script Configure your Nginx server to have a custom 404 page that contains the string Ceci n'est pas une page
+
+# Update the package list
+sudo apt-get update
+
+# Install Nginx if not installed
+sudo apt-get install nginx -y
+
+# Configure Nginx to return a custom 404 page
+sudo bash -c 'cat << EOF > /var/www/html/404.html
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>404 Not Found</title>
+  </head>
+  <body>
+    <h1>Ceci n\'est pas une page</h1>
+  </body>
+</html>
+EOF'
+
+sudo sed -i 's/#error_page 404 \/404.html;/error_page 404 \/404.html;/' /etc/nginx/sites-available/default
+
+
+# Restart Nginx
+sudo service nginx stop
+sudo service nginx start
+
+# Test that Nginx is working correctly by making a GET request to a nonexistent page
+response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/nonexistent)
+if [[ "$response" == "404" ]]; then
+        echo "Nginx is working correctly!"
+else
+        echo "Error: Nginx is not returning a 404 error code."
+fi
+
+
+# Test that the custom 404 page is being returned
+response=$(curl -s http://localhost/nonexistent)
+if [[ "$response" == *"Ceci n'est pas une page"* ]]; then
+        echo "Custom 404 page is being returned correctly!"
+else
+        echo "Error: Custom 404 page is not being returned correctly."
+fi
+
