@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+#A bash script that configures Nginx so that /redirect_me is redirecting to another page.
+
+#update the packages 
+sudo apt-get update
+
+#Configure Nginx to redirect all requests to a new URL using a 301 Moved Permanently response.
+sudo sed -i 's|location / {|location / {\nreturn 301 https://www.youtube.com/watch?v=QH2-TGUlwu4$request_uri;|g' /etc/nginx/sites-available/default
+
+sudo service nginx restart
