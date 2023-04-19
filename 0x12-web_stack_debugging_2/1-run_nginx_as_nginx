@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+#A bash script to Fix this container so that Nginx is running as the nginx user.
+
+# update nginx config file with user Nginx
+sudo sed -i 's/#user www-data/user nginx/' /etc/nginx/nginx.conf
+
+#change ownership and permissions of config file
+chmod 700 /etc/nginx/nginx.conf
+chown nginx:nginx /etc/nginx/nginx.conf
+
+#Update Nginx to listen to port 8080
+sudo sed -i 's/80 default_server/8080 default_server/' /etc/nginx/sites-available/default
+
+#stop Apache2 if it is starting and restart Nginx
+pkill apache2
+sudo -u nginx service nginx restart
+
+
