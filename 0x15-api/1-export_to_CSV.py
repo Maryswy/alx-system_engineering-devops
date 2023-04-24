@@ -1,53 +1,38 @@
 #!/usr/bin/python3
-
-"""
-This module defines a function that exports task data in CSV format
-"""
+"""Export tasks owned by a specific employee to a CSV file"""
 
 import csv
-
-def export_tasks(user_id: int, username: str, tasks: list) -> None:
-    """
-    Exports all tasks owned by a given employee to a CSV file
-
-    Args:
-    - user_id (int): the ID of the employee
-    - username (str): the username of the employee
-    - tasks (list): a list of tasks, where each task is represented as a dictionary with the following keys:
-        - title (str): the title of the task
-        - completed (bool): True if the task is completed, False otherwise
-        - assigned_to (str): the username of the employee to whom the task is assigned
-
-    Returns:
-    - None
-    """
-    # Filter tasks assigned to this user
-    user_tasks = [task for task in tasks if task.get('assigned_to') == username]
-
-    # Define CSV filename
-    filename = f"{user_id}.csv"
-
-    # Write CSV file
-    with open(filename, mode='w', newline='') as csv_file:
-        writer = csv.writer(csv_file)
-        writer.writerow(['USER_ID', 'USERNAME', 'TASK_COMPLETED_STATUS', 'TASK_TITLE'])
-        for task in user_tasks:
-            writer.writerow([user_id, username, task.get('completed'), task.get('title')])
-
+import requests
+from sys import argv
 
 if __name__ == "__main__":
-    # Sample data
-    tasks = [
-        {'title': 'Complete task 1', 'completed': True, 'assigned_to': 'Mary'},
-        {'title': 'Review task 2', 'completed': False, 'assigned_to': 'Mary'},
-        {'title': 'Approve task 3', 'completed': True, 'assigned_to': 'Pavel'},
-        {'title': 'Complete task 4', 'completed': False, 'assigned_to': 'Mary'},
-        {'title': 'Review task 5', 'completed': True, 'assigned_to': 'Pavel'},
-    ]
+    if len(argv) != 2:
+        print("Usage: {} EMPLOYEE_ID".format(argv[0]))
+        exit(1)
 
-    # Define user ID and username
+    # Set up API endpoint and query parameters
+    url = "https://jsonplaceholder.typicode.com/todos"
+    params = {"userId": argv[1]}
+
+    # Send GET request to API endpoint
+    response = requests.get(url, params=params)
+
+    # Raise exception if API request was unsuccessful
+    response.raise_for_status()
+
+    # Parse JSON response to Python dictionary
+    tasks = response.json()
+
+    # Write tasks to CSV file
+    with open(argv[1] + ".csv", "w", newline="") as csvfile:
+        writer = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
+        writer.writerow(["USER_ID", "USERNAME", "TASK_COMPLETED_STATUS", "TASK_TITLE"])
+        for task in tasks:
+            writer.writerow([task["userId"], task["title"], str(task["completed"]), task["title"]])
+
+    # Define user ID, username, task_completed_status, task_title
     user_id = 2
     username = 'Mary'
-
-    # Export tasks
-    export_tasks(user_id, username, tasks)
+    task_completed_status = 'True'
+    task_completed_status = 'False'
+    task_title = ''
