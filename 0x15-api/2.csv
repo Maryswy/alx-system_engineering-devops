@@ -1,0 +1,4 @@
+USER_ID,USERNAME,TASK_COMPLETED_STATUS,TASK_TITLE
+2,Mary,True,Complete task 1
+2,Mary,False,Review task 2
+2,Mary,False,Complete task 4
