@@ -1,15 +1,18 @@
 #!/usr/bin/python3
 """
-This module queries the Reddit API and returns the number of subscribers for a given subreddit
+This module queries the Reddit API and returns the number of subscribers
+for a given subreddit
 """
 import requests
 
 
 def number_of_subscribers(subreddit):
     """
-    Queries the Reddit API and returns the number of subscribers for a given subreddit
+    Queries the Reddit API and returns the number of
+    subscribers for a given subreddit
     :param subreddit: The name of the subreddit to query
-    :return: The number of subscribers for the given subreddit, or 0 if the subreddit is invalid
+    :return: The number of subscribers for the given subreddit,
+    or 0 if the subreddit is invalid
     """
     url = f"https://www.reddit.com/r/{subreddit}/about.json"
     headers = {'User-Agent': 'Mozilla/5.0'}
@@ -18,4 +21,3 @@ def number_of_subscribers(subreddit):
         return response.json()['data']['subscribers']
     else:
         return 0
-
