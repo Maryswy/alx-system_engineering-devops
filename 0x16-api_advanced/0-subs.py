@@ -2,8 +2,8 @@
 """
 This module queries the Reddit API and returns the number of subscribers for a given subreddit
 """
-
 import requests
+
 
 def number_of_subscribers(subreddit):
     """
@@ -18,3 +18,4 @@ def number_of_subscribers(subreddit):
         return response.json()['data']['subscribers']
     else:
         return 0
+
