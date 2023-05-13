@@ -1,19 +1,13 @@
 #!/usr/bin/env bash
-#A bash script that adds a custom Nginx response header
-
-#Update Nginx
+# Use a custom header to configure nginx server for multiple servers
 apt-get -y update
-
-#install Nginx if not installed 
 apt-get -y install nginx
 
 sudo chown -R "$USER:$USER" /etc/nginx
 
-
 server_name=$(hostname)
-
 
 sudo sed -i "/http {/a \        add_header X-Served-By \"$server_name\";" /etc/nginx/nginx.conf
 
-
 sudo service nginx restart
+
