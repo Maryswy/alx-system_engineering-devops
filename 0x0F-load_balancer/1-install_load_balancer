@@ -1,26 +1,72 @@
 #!/usr/bin/env bash
-#A bash script that Installs and configure HAproxy on your lb-01 server.
-
-sudo apt-get -y update
-sudo apt-get -y install haproxy
-
-sudo chown -R "$USER:$USER" /etc/haproxy/
+# This script installs and configures HAProxy on an Ubuntu machine
 
 
-printf %s "
-# Config for frontend
-frontend http-in
-       bind *:80 
-       default_backend servers
+# Update packages
+sudo apt-get update
 
 
+# Configure HAProxy
+sudo mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak   # Backup the original config file
 
-# Config for backend
-backend servers
+
+sudo bash -c 'cat << EOF > /etc/haproxy/haproxy.cfg
+global
+    log /dev/log local0
+    log /dev/log local1 notice
+    chroot /var/lib/haproxy
+    stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
+    stats timeout 30s
+    user haproxy
+    group haproxy
+    daemon
+
+
+    # Default SSL material locations
+    ca-base /etc/ssl/certs
+    crt-base /etc/ssl/private
+
+
+    # Default ciphers to use on SSL-enabled listening sockets.
+    # For more information, see ciphers(1SSL). This list is from:
+    #  https://hynek.me/articles/hardening-your-web-servers-ssl-ciphers/
+    ssl-default-bind-ciphers ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:RSA+AESGCM:RSA+AES:!aNULL:!MD5:!DSS
+    ssl-default-bind-options no-sslv3
+
+
+defaults
+    log global
+    mode http
+    option httplog
+    option dontlognull
+    timeout connect 5000
+    timeout client 50000
+    timeout server 50000
+
+
+frontend http_front
+    bind *:80
+    default_backend http_back
+    option http-server-close false
+
+backend http_back
     balance roundrobin
-    server server1 54.90.27.196
-    server server2 34.207.62.117
+    server web-01 54.90.27.196:80 check
+    server web-02 34.207.62.117:80 check
+EOF'
 
-" >> /etc/haproxy/haproxy.cfg
 
+#Test the configuration file
+sudo haproxy -c -f /etc/haproxy/haproxy.cfg
+
+
+# Enable HAProxy init script
+sudo sed -i 's/ENABLED=0/ENABLED=1/' /etc/default/haproxy
+
+
+# Restart HAProxy service
 sudo service haproxy restart
+
+
+# Check if HAProxy is listening on port 80
+sudo ss -tuln | grep :80
