@@ -1,16 +1,40 @@
 #!/usr/bin/env bash
-# This script displays subdomain information.
-dom_info () {
-    line=$(dig "$2"."$1" | grep -A1 'ANSWER SECTION:' | tr '\t' '\n' | tail -2 | tr '\n' ' ')
-    echo "$2 $line" | awk '{print "The subdomain " $1 " is a " $2 " record and points to " $3}'
+# This script audits domain names and their subdomains
+
+# Function to retrieve DNS record information for a given domain and subdomain
+get_dns_record_info() {
+  local domain="$1"
+  local subdomain="$2"
+
+  local record_type="A"
+  local destination
+
+  if [[ -n "$subdomain" ]]; then
+    destination=$(dig +short "$subdomain.$domain" "$record_type")
+    echo "The subdomain $subdomain is a $record_type record and points to $destination"
+  else
+    local default_subdomains=("www" "lb-01" "web-01" "web-02")
+    for sub in "${default_subdomains[@]}"; do
+      destination=$(dig +short "$sub.$domain" "$record_type")
+      echo "The subdomain $sub is a $record_type record and points to $destination"
+    done
+  fi
 }
-if [ "$#" == 1 ]
-then
-  dom_info "$1" "www"
-  dom_info "$1" "lb-01"
-  dom_info "$1" "web-01"
-  dom_info "$1" "web-02"
-elif [ "$#" == 2 ]
-then
-  dom_info "$1" "$2"
+
+
+# Check if the domain argument is provided
+if [[ -z "$1" ]]; then
+  echo "Error: Domain argument is missing."
+  exit 1
 fi
+
+domain="$1"
+subdomain="$2"
+
+# Check if the subdomain argument is provided and call the function accordingly
+if [[ -n "$subdomain" ]]; then
+  get_dns_record_info "$domain" "$subdomain"
+else
+  get_dns_record_info "$domain"
+fi
+
