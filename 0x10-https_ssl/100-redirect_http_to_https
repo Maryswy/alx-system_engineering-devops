@@ -38,7 +38,7 @@ defaults
 frontend marys24.tech-http
     mode http
     bind   0.0.0.0:80
-    bind   0.0.0.0:443 ssl crt /etc/haproxy/certs/www.mosesonche.tech.pem
+    bind   0.0.0.0:443 ssl crt /etc/haproxy/certs/www.marys24.tech.pem
     http-request add-header X-Forwarded-Proto http
     http-request add-header X-Forwarded-Proto https
     redirect scheme https code 301 if !{ ssl_fc }
